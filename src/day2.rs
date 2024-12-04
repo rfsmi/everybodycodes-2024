@@ -10,24 +10,21 @@ use nom::{
     FindSubstring,
 };
 
-fn parse(input: &str) -> (Vec<Vec<u8>>, Vec<Vec<u8>>) {
+fn parse(input: &[u8]) -> (Vec<Vec<u8>>, Vec<Vec<u8>>) {
     let words = preceded(
-        tag::<&str, &str, Error<&str>>("WORDS:"),
-        separated_list1(
-            tag(","),
-            preceded(space0, map(alpha1, |s: &str| s.as_bytes().to_owned())),
-        ),
+        tag::<&[u8], &[u8], Error<&[u8]>>(b"WORDS:"),
+        separated_list1(tag(b","), preceded(space0, map(alpha1, <[u8]>::to_owned))),
     );
     let word = recognize(many1(satisfy(|c| c.is_alphabetic() || c == '_')));
     let text = many1(map(
-        many_till(take(1usize), map(word, |s: &str| s.as_bytes().to_owned())),
+        many_till(take(1usize), map(word, <[u8]>::to_owned)),
         |(_, g)| g,
     ));
     separated_pair(words, multispace0, text)(input).unwrap().1
 }
 
 pub fn solve_1(input: &str) -> usize {
-    let (words, text) = parse(input);
+    let (words, text) = parse(input.as_bytes());
     let mut count = 0;
     for t in text {
         for w in &words {
@@ -60,7 +57,7 @@ fn covered(words: &[Vec<u8>], text: &[Vec<u8>]) -> HashSet<(usize, usize)> {
 }
 
 pub fn solve_2(input: &str) -> usize {
-    let (words, text) = parse(input);
+    let (words, text) = parse(input.as_bytes());
     covered(&words, &text).len()
 }
 
@@ -71,7 +68,7 @@ fn transposed(m: &[Vec<u8>]) -> Vec<Vec<u8>> {
 }
 
 pub fn solve_3(input: &str) -> usize {
-    let (words, text) = parse(input);
+    let (words, text) = parse(input.as_bytes());
     let word_length = words.iter().map(|w| w.len()).max().unwrap();
 
     // Do left/right
