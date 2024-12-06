@@ -1,24 +1,24 @@
 macro_rules! make_runner {
     (@expand
         [ $($crunched:tt)* ]
-        $day:tt + + ,
+        $quest:tt + + ,
         $($rest:tt)*
     ) => (
-        crate::utils::make_runner!(@crunch $($crunched)* { $day 3 2 1 } $($rest)*);
+        crate::utils::make_runner!(@crunch $($crunched)* { $quest 3 2 1 } $($rest)*);
     );
     (@expand
         [ $($crunched:tt)* ]
-        $day:tt + ,
+        $quest:tt + ,
         $($rest:tt)*
     ) => (
-        crate::utils::make_runner!(@crunch $($crunched)* { $day 2 1 } $($rest)*);
+        crate::utils::make_runner!(@crunch $($crunched)* { $quest 2 1 } $($rest)*);
     );
     (@expand
         [ $($crunched:tt)* ]
-        $day:tt ,
+        $quest:tt ,
         $($rest:tt)*
     ) => (
-        crate::utils::make_runner!(@crunch $($crunched)* { $day 1 } $($rest)*);
+        crate::utils::make_runner!(@crunch $($crunched)* { $quest 1 } $($rest)*);
     );
     (@expand [ $($crunched:tt)* ]) => (
         crate::utils::make_runner!(@assemble $($crunched)* );
@@ -27,24 +27,24 @@ macro_rules! make_runner {
         { $($modules:tt)* }
         { $($variants:tt)* }
         { $($runners:tt)* }
-        { $day:tt $($part:tt)+ }
+        { $quest:tt $($part:tt)+ }
         $($rest:tt)*
     ) => (
         paste::paste! { crate::utils::make_runner!(@expand [
             {
-                mod [< day $day >];
+                mod [< quest $quest >];
                 $($modules)*
             }
             {
-                $([< Day $day _ $part >],)+
+                $([< Quest $quest _ $part >],)+
                 $($variants)*
             }
             {
                 $(
-                    Task::[< Day $day _ $part >] => {
-                        let name = concat!($day, " (part ", $part, ")");
-                        let input = include_str!(concat!("../inputs/", $day, "-", $part, ".txt"));
-                        let result = [< day $day >]::[< solve_ $part >](input);
+                    Task::[< Quest $quest _ $part >] => {
+                        let name = concat!($quest, " (part ", $part, ")");
+                        let input = include_str!(concat!("../inputs/", $quest, "-", $part, ".txt"));
+                        let result = [< quest $quest >]::[< solve_ $part >](input);
                         (name, result.to_string())
                     },
                 )+
@@ -64,15 +64,15 @@ macro_rules! make_runner {
 
         fn run(args: Args) {
             let start = std::time::Instant::now();
-            let (day, result) = match args.task {
+            let (quest, result) = match args.task {
                 Task::Latest | $($runners)*
             };
             let duration = start.elapsed().as_secs_f32();
-            println!("Computed result for day {day} in {duration:.3} seconds: {result}");
+            println!("Computed result for quest {quest} in {duration:.3} seconds: {result}");
         }
     );
-    ($($days:tt)*) => {
-        crate::utils::make_runner!(@expand [{} {} {}] $($days)*);
+    ($($quests:tt)*) => {
+        crate::utils::make_runner!(@expand [{} {} {}] $($quests)*);
     };
 }
 
